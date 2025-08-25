@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Pare no Momento Certo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>🎯 Pare no Momento Certo</h1>
+
+  <div id="game-area">
+    <div id="target-zone"></div>
+    <div id="moving-bar"></div>
+  </div>
+
+  <button id="stop-btn">Parar</button>
+  <div id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+  text-align: center;
+  padding: 30px;
+}
+
+h1 {
+  color: #00ffcc;
+}
+
+#game-area {
+  position: relative;
+  width: 80%;
+  height: 40px;
+  background-color: #333;
+  margin: 40px auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#target-zone {
+  position: absolute;
+  left: 60%;
+  width: 10%;
+  height: 100%;
+  background-color: green;
+}
+
+#moving-bar {
+  position: absolute;
+  width: 5%;
+  height: 100%;
+  background-color: red;
+  left: 0%;
+  transition: left 0.02s;
+}
+
+#stop-btn {
+  padding: 10px 20px;
+  font-size: 1.2em;
+  margin-top: 20px;
+  cursor: pointer;
+  background: #00ffcc;
+  border: none;
+  border-radius: 5px;
+  color: #111;
+  font-weight: bold;
+}
+
+#result {
+  margin-top: 30px;
+  font-size: 1.4em;
+}
+
+const bar = document.getElementById('moving-bar');
+const stopBtn = document.getElementById('stop-btn');
+const result = document.getElementById('result');
+
+let position = 0;
+let direction = 1;
+let interval;
+let tentativas = 3;
+
+function startMoving() {
+  position = 0;
+  direction = 1;
+  bar.style.left = position + '%';
+  result.textContent = `Tentativas restantes: ${tentativas}`;
+  result.style.color = '#fff';
+
+  interval = setInterval(() => {
+    position += direction * 0.5;
+    if (position >= 95 || position <= 0) {
+      direction *= -1;
+    }
+    bar.style.left = position + '%';
+  }, 10);
+}
+
+function stopBar() {
+  clearInterval(interval);
+  const barLeft = parseFloat(bar.style.left);
+  const targetStart = 60;
+  const targetEnd = 70;
+
+  tentativas--;
+
+  if (barLeft >= targetStart && barLeft <= targetEnd) {
+    result.textContent = '🎉 Parabéns! Você parou no lugar certo!';
+    result.style.color = '#00ff00';
+    stopBtn.disabled = true;
+    setTimeout(resetGame, 3000);
+  } else {
+    if (tentativas > 0) {
+      result.textContent = `❌ Errou! Tentativas restantes: ${tentativas}`;
+      result.style.color = '#ff3333';
+      setTimeout(startMoving, 1500);
+    } else {
+      result.textContent = '🔁 Fim das tentativas. Reiniciando...';
+      result.style.color = '#ffff00';
+      stopBtn.disabled = true;
+      setTimeout(resetGame, 3000);
+    }
+  }
+}
+
+function resetGame() {
+  tentativas = 3;
+  stopBtn.disabled = false;
+  result.textContent = '';
+  startMoving();
+}
+
+stopBtn.addEventListener('click', stopBar);
+
+startMoving();
+
